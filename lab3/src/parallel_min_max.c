@@ -15,10 +15,24 @@
 #include "find_min_max.h"
 #include "utils.h"
 
+
+volatile pid_t* child_pids; 
+volatile sig_atomic_t child_num; 
+
+static void childsKilling(int signo){
+    printf("SIGKILL\n");
+    for (size_t i = 0; i < child_num; i++) {
+        printf("killing child: %d\n", child_pids[i]);
+        kill(child_pids[i],SIGKILL);
+    }
+}
+
+
 int main(int argc, char **argv) {
   int seed = -1;
   int array_size = -1;
   int pnum = -1;
+  int timeout=-1;
   bool with_files = false;
 
   while (true) {
@@ -27,6 +41,7 @@ int main(int argc, char **argv) {
     static struct option options[] = {{"seed", required_argument, 0, 0},
                                       {"array_size", required_argument, 0, 0},
                                       {"pnum", required_argument, 0, 0},
+                                      {"timeout", required_argument, 0, 0},
                                       {"by_files", no_argument, 0, 'f'},
                                       {0, 0, 0, 0}};
 
@@ -94,6 +109,13 @@ int main(int argc, char **argv) {
   GenerateArray(array, array_size, seed);
   int active_child_processes = 0;
   int active_array_step = pnum < array_size ? (array_size / pnum) : 1;
+
+   if (timeout != -1) {
+        printf("ALARM INSTALLED\n");
+        alarm (timeout);
+        signal(SIGALRM, childsKilling );
+    }
+
 
   struct timeval start_time;
   gettimeofday(&start_time, NULL);
