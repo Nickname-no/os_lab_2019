@@ -75,6 +75,14 @@ int main(int argc, char **argv) {
             }
             break;
           case 3:
+            timeout = atoi(optarg);
+                    if (timeout <= 0) {
+                        printf("pnum must be positiv number%d\n", pnum);
+                        return 1;
+                    }
+            break;
+
+          case 4:
             with_files = true;
             break;
 
