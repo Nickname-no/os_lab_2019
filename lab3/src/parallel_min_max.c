@@ -21,7 +21,8 @@ volatile sig_atomic_t child_num;
 
 static void childsKilling(int signo){
     printf("SIGKILL\n");
-    for (size_t i = 0; i < child_num; i++) {
+    size_t i;
+    for (i = 0; i < child_num; i++) {
         printf("killing child: %d\n", child_pids[i]);
         kill(child_pids[i],SIGKILL);
     }
